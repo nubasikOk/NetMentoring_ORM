@@ -41,5 +41,28 @@ namespace Linq2DBNorthwind
                 }
             }
         }
+
+        public IEnumerable<string> EmployeesCountForRegion()
+        {
+            using (var connection = new NorthwindConnection("Northwind"))
+            {
+                var query = from r in connection.Regions
+                            join t in connection.Territories on r.RegionId equals t.RegionId into kl
+                            from k in kl.DefaultIfEmpty()
+                            join et in connection.EmployeeTerritories on k.TerritoryId equals et.TerritoryId into zl
+                            from z in zl.DefaultIfEmpty()
+                            join e in connection.Employees on z.EmployeeId equals e.EmployeeId into dl
+                            from d in dl.DefaultIfEmpty()
+                            select new { Region = r, d.EmployeeId };
+                var result = from row in query.Distinct()
+                             group row by row.Region into ger
+                             select new { RegionDescription = ger.Key.RegionDescription, EmployeesCount = ger.Count(e => e.EmployeeId != 0) };
+
+                foreach (var record in result.ToList())
+                {
+                    yield return ($"Region: {record.RegionDescription}; Employees count: {record.EmployeesCount}");
+                }
+            }
+        }
     }
 }

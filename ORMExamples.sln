@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DBNorthwind", "Linq2DB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFNorthwind", "EFNorthwind\EFNorthwind.csproj", "{3899B7C6-0A2D-4B42-932A-8E526569E6F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DBNorthwind.Tests", "Linq2DBNorthwind.Tests\Linq2DBNorthwind.Tests.csproj", "{14E18C30-399D-4315-AB74-7C6212E98FF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFNorthwind.Tests", "EFNorthwind.Tests\EFNorthwind.Tests.csproj", "{4BDBA027-2F03-44E6-BD69-BF34BBF7062F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14E18C30-399D-4315-AB74-7C6212E98FF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14E18C30-399D-4315-AB74-7C6212E98FF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14E18C30-399D-4315-AB74-7C6212E98FF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14E18C30-399D-4315-AB74-7C6212E98FF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BDBA027-2F03-44E6-BD69-BF34BBF7062F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BDBA027-2F03-44E6-BD69-BF34BBF7062F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BDBA027-2F03-44E6-BD69-BF34BBF7062F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BDBA027-2F03-44E6-BD69-BF34BBF7062F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,14 +6,14 @@ namespace EFNorthwind.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<EFNorthwind.Entities.NorthwindDB>
+    internal sealed class Configuration : DbMigrationsConfiguration<NorthwindDB>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(EFNorthwind.Entities.NorthwindDB context)
+        protected override void Seed(NorthwindDB context)
         {
             context.Categories.AddOrUpdate(c => c.CategoryName,
                new Category { CategoryName = "Vehicles" },

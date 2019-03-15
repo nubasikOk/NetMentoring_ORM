@@ -1,5 +1,6 @@
-namespace EFNorthwind.Entities
+namespace EFNorthwind
 {
+    using EFNorthwind.Entities;
     using System.Data.Entity;
    
     public partial class NorthwindDB : DbContext
