@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Linq2DBNorthwind", "Linq2DBNorthwind\Linq2DBNorthwind.csproj", "{D75F0B81-8D02-4684-B1AB-02324DBCD347}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFNorthwind", "EFNorthwind\EFNorthwind.csproj", "{3899B7C6-0A2D-4B42-932A-8E526569E6F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D75F0B81-8D02-4684-B1AB-02324DBCD347}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D75F0B81-8D02-4684-B1AB-02324DBCD347}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D75F0B81-8D02-4684-B1AB-02324DBCD347}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D75F0B81-8D02-4684-B1AB-02324DBCD347}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3899B7C6-0A2D-4B42-932A-8E526569E6F9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A3E84BC5-667B-4CB8-A434-228FF3CD4BAF}
+	EndGlobalSection
+EndGlobal
