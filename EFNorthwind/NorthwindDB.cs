@@ -24,6 +24,9 @@ namespace EFNorthwind
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            Database.SetInitializer<NorthwindDB>(null);
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Customer>()
                 .Property(e => e.CustomerID)
                 .IsFixedLength();
