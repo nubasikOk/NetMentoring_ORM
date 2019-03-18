@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Linq2DBNorthwind.Entities
 {
-    [Table("[dbo].[Region]")]
+    [Table("[dbo].[Regions]")]
     public class Region
     {
         [Column("RegionID")]

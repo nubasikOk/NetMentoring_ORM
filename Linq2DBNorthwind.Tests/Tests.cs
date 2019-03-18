@@ -31,6 +31,7 @@ namespace Linq2DBNorthwind.Tests
         [TestMethod]
         public void Test_IsNotNull_EmployeesCountForRegion()
         {
+                   
             Assert.IsNotNull(db.EmployeesCountForRegion());
         }
 
@@ -44,7 +45,7 @@ namespace Linq2DBNorthwind.Tests
         [TestMethod]
         public void Test_IsCorrect_UpdateProductsCategory()
         {
-            Assert.IsTrue(db.MoveProductsToAnotherCategory(3,2)>0);
+            Assert.IsTrue(db.MoveProductsToAnotherCategory(6,1)>0);
         }
 
         

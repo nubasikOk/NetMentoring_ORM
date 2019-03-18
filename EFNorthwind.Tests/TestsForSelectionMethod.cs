@@ -4,13 +4,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace EFNorthwind.Tests
 {
     [TestClass]
-    public class Tests
+    public class TestsForSelectionMethod
     {
-        EntityDAL db;
+        OrderDetailSelector db;
         [TestInitialize]
         public void Test_Initialize()
         {
-             db = new EntityDAL();
+             db = new OrderDetailSelector();
 
           
         }

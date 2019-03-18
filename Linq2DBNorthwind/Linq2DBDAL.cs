@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Linq2DBNorthwind.Entities;
 using LinqToDB;
 using LinqToDB.Data;
@@ -13,10 +14,9 @@ namespace Linq2DBNorthwind
         {
             using (var connection = new NorthwindConnection("Northwind"))
             {
-                foreach (var product in connection.Products.LoadWith(p => p.Category).LoadWith(p => p.Supplier))
-                {
-                    yield return ($"Product name: {product.ProductName}; Category: {product.Category?.CategoryName}; Supplier: {product.Supplier?.ContactName}");
-                }
+                 var allProducts=connection.Products.LoadWith(p => p.Category).LoadWith(p => p.Supplier)
+                    .Select(product=>$"Product name: {product.ProductName}; Category: {product.Category.CategoryName}; Supplier: {product.Supplier.ContactName}");
+                 return allProducts;
             }
 
         }
@@ -25,20 +25,17 @@ namespace Linq2DBNorthwind
         {
             using (var connection = new NorthwindConnection("Northwind"))
             {
-                var query = from e in connection.Employees
-                            join et in connection.EmployeeTerritories on e.EmployeeId equals et.EmployeeId into el
-                            from w in el.DefaultIfEmpty()
-                            join t in connection.Territories on w.TerritoryId equals t.TerritoryId into zl
-                            from z in zl.DefaultIfEmpty()
-                            join r in connection.Regions on z.RegionId equals r.RegionId into kl
-                            from k in kl.DefaultIfEmpty()
-                            select new { e.FirstName, e.LastName, Region = k };
-                query = query.Distinct();
+                var employeeWithTerritories = from employee in connection.Employees
+                                              join employeeTerritory in connection.EmployeeTerritories on employee.EmployeeId equals employeeTerritory.EmployeeId 
+                                              join territory in connection.Territories on employeeTerritory.TerritoryId equals territory.TerritoryId
+                                              join regions in connection.Regions on territory.RegionId equals regions.RegionId
+                                              select new { employee.FirstName, employee.LastName, regions };
 
-                foreach (var record in query)
-                {
-                    yield return ($"Employee: {record.FirstName} {record.LastName}; Region: {record.Region?.RegionDescription}");
-                }
+                return employeeWithTerritories
+                        .Distinct()
+                        .Select(item=> $"Employee: {item.FirstName} {item.LastName}; Region: {item.regions.RegionDescription}");
+
+                
             }
         }
 
@@ -46,22 +43,20 @@ namespace Linq2DBNorthwind
         {
             using (var connection = new NorthwindConnection("Northwind"))
             {
-                var query = from r in connection.Regions
-                            join t in connection.Territories on r.RegionId equals t.RegionId into kl
-                            from k in kl.DefaultIfEmpty()
-                            join et in connection.EmployeeTerritories on k.TerritoryId equals et.TerritoryId into zl
-                            from z in zl.DefaultIfEmpty()
-                            join e in connection.Employees on z.EmployeeId equals e.EmployeeId into dl
-                            from d in dl.DefaultIfEmpty()
-                            select new { Region = r, d.EmployeeId };
-                var result = from row in query.Distinct()
-                             group row by row.Region into ger
-                             select new { RegionDescription = ger.Key.RegionDescription, EmployeesCount = ger.Count(e => e.EmployeeId != 0) };
+                var allEmployeesWithRegions = from reg in connection.Regions
+                                              join territories in connection.Territories on reg.RegionId equals territories.RegionId 
+                                              join empTerritories in connection.EmployeeTerritories on territories.TerritoryId equals empTerritories.TerritoryId
+                                              join employee in connection.Employees on empTerritories.EmployeeId equals employee.EmployeeId
+                                              select new { region=reg.RegionDescription, employee.EmployeeId };
 
-                foreach (var record in result.ToList())
-                {
-                    yield return ($"Region: {record.RegionDescription}; Employees count: {record.EmployeesCount}");
-                }
+                var employeesGroupedByRegion = from row in allEmployeesWithRegions.Distinct()
+                                               group row by row.region into groupRegion
+                                               select new {
+                                                              groupRegion.Key,
+                                                              EmployeesCount = groupRegion.Count(e => e.EmployeeId != 0)
+                                                          };
+
+                return employeesGroupedByRegion.Select(item => ($"Region: {item.Key}; Employees count: {item.EmployeesCount}")); ;
             }
         }
 
@@ -71,8 +66,8 @@ namespace Linq2DBNorthwind
             {
                 try
                 {
-                    connection.BeginTransaction();
-                    newEmployee.EmployeeId = Convert.ToInt32(connection.InsertWithIdentity(newEmployee));
+                    var a= connection.BeginTransaction();
+                    newEmployee.EmployeeId = connection.InsertWithInt32Identity(newEmployee);
                     connection.Territories.Where(t => t.TerritoryDescription.Length <= 5)
                         .Insert(connection.EmployeeTerritories, t => new EmployeeTerritory { EmployeeId = newEmployee.EmployeeId, TerritoryId = t.TerritoryId });
                     connection.CommitTransaction();
@@ -88,7 +83,9 @@ namespace Linq2DBNorthwind
 
         public int MoveProductsToAnotherCategory(int categoryIDFirst, int categoryIDSecond)
         {
-            if (categoryIDFirst == categoryIDSecond) throw new Exception("categories are same!");
+            if (categoryIDFirst == categoryIDSecond)
+                throw new Exception("categories are same!");
+
             using (var connection = new NorthwindConnection("Northwind"))
             {
                 int updatedCount = connection.Products.Update(p => p.CategoryId == categoryIDFirst, pr => new Product
@@ -103,24 +100,23 @@ namespace Linq2DBNorthwind
         {
             using (var connection = new NorthwindConnection("Northwind"))
             {
-
                 try
                 {
                     connection.BeginTransaction();
                     foreach (var product in products)
                     {
                         var category = connection.Categories.FirstOrDefault(c => c.CategoryName == product.Category.CategoryName);
-                        product.CategoryId = category?.CategoryId ?? Convert.ToInt32(connection.InsertWithIdentity(
+                        product.CategoryId = category?.CategoryId ?? connection.InsertWithInt32Identity(
                                                  new Category
                                                  {
                                                      CategoryName = product.Category.CategoryName
-                                                 }));
+                                                 });
                         var supplier = connection.Suppliers.FirstOrDefault(s => s.CompanyName == product.Supplier.CompanyName);
-                        product.SupplierId = supplier?.SupplierId ?? Convert.ToInt32(connection.InsertWithIdentity(
+                        product.SupplierId = supplier?.SupplierId ?? connection.InsertWithInt32Identity(
                                                  new Supplier
                                                  {
                                                      CompanyName = product.Supplier.CompanyName
-                                                 }));
+                                                 });
                     }
 
                     connection.BulkCopy(products);
@@ -129,7 +125,6 @@ namespace Linq2DBNorthwind
                 catch
                 {
                     connection.RollbackTransaction();
-
                 }
             }
         }
@@ -139,20 +134,23 @@ namespace Linq2DBNorthwind
         {
             using (var connection = new NorthwindConnection("Northwind"))
             {
-                int updatedRowsCount = 
-                    connection.OrderDetails.LoadWith(od => od.Order).LoadWith(od => od.Product)
-                    .Where(od => od.Order.ShippedDate == null)
-                    .Count();
-                var updatedRows = connection.OrderDetails.LoadWith(od => od.Order).LoadWith(od => od.Product)
-                .Where(od => od.Order.ShippedDate == null).Update(
-                    od => new OrderDetail
-                    {
-                        ProductId = connection.Products.First(p => p.CategoryId == od.Product.CategoryId && p.ProductId > od.ProductId) != null
-                            ? connection.Products.First(p => p.CategoryId == od.Product.CategoryId && p.ProductId > od.ProductId).ProductId
-                            : connection.Products.First(p => p.CategoryId == od.Product.CategoryId).ProductId
-                    });
-                return updatedRowsCount;
+                var rowsToUpdate = connection.OrderDetails.LoadWith(od => od.Order).LoadWith(od => od.Product)
+                    .Where(od => od.Order.ShippedDate == null);
+                
+                int updatedRows = rowsToUpdate.Update(UpdateOrders(connection.Products));
+                return updatedRows;
             }
         }
+        
+        private Expression<Func<OrderDetail, OrderDetail>> UpdateOrders(ITable<Product> products)
+        {
+            return od => new OrderDetail
+            {
+                ProductId = products.First(p => p.CategoryId == od.Product.CategoryId && p.ProductId > od.ProductId) != null
+                            ? products.First(p => p.CategoryId == od.Product.CategoryId && p.ProductId > od.ProductId).ProductId
+                            : products.First(p => p.CategoryId == od.Product.CategoryId).ProductId
+            };
+        }
+       
     }
 }

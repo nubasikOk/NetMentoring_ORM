@@ -54,7 +54,7 @@
     <Compile Include="Entities\CreditCard.cs" />
     <Compile Include="Entities\Customer.cs" />
     <Compile Include="Entities\Employee.cs" />
-    <Compile Include="EntityDAL.cs" />
+    <Compile Include="OrderDetailSelector.cs" />
     <Compile Include="Migrations\201903151111318_version1.0.cs" />
     <Compile Include="Migrations\201903151111318_version1.0.Designer.cs">
       <DependentUpon>201903151111318_version1.0.cs</DependentUpon>
