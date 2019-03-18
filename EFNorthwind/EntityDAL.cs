@@ -29,9 +29,14 @@ namespace EFNorthwind
                         od.ProductID
                     })
                 });
+                
+                foreach (var row in query)
+                {
+                    yield return($"Customer: {row.ContactName} Products: {string.Join(", ", row.Order_Details.Select(od => od.ProductName))}");
+                }
 
-          
-                yield return query.ToString();
+
+
             }
         }
     }

@@ -6,15 +6,23 @@ namespace EFNorthwind.Tests
     [TestClass]
     public class Tests
     {
-        [TestMethod]
-        public void TestMethod1()
+        EntityDAL db;
+        [TestInitialize]
+        public void Test_Initialize()
         {
-            EntityDAL db = new EntityDAL();
-            foreach(var s in db.GetOrderDetailByCategory(3))
-            {
-                Console.WriteLine(s);
-            }
+             db = new EntityDAL();
+
+          
+        }
+
+        [TestMethod]
+        public void Test_IsNotNull_GetOrderDetail()
+        {
             Assert.IsNotNull(db.GetOrderDetailByCategory(3));
         }
+
+        
+
+
     }
 }

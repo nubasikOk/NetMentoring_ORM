@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Linq2DBNorthwind.Entities;
 using LinqToDB;
-
+using LinqToDB.Data;
 
 namespace Linq2DBNorthwind
 {
@@ -18,7 +18,7 @@ namespace Linq2DBNorthwind
                     yield return ($"Product name: {product.ProductName}; Category: {product.Category?.CategoryName}; Supplier: {product.Supplier?.ContactName}");
                 }
             }
-               
+
         }
 
         public IEnumerable<string> GetAllEmployees()
@@ -62,6 +62,96 @@ namespace Linq2DBNorthwind
                 {
                     yield return ($"Region: {record.RegionDescription}; Employees count: {record.EmployeesCount}");
                 }
+            }
+        }
+
+        public int AddNewEmployeeWithTerritories(Employee newEmployee)
+        {
+            using (var connection = new NorthwindConnection("Northwind"))
+            {
+                try
+                {
+                    connection.BeginTransaction();
+                    newEmployee.EmployeeId = Convert.ToInt32(connection.InsertWithIdentity(newEmployee));
+                    connection.Territories.Where(t => t.TerritoryDescription.Length <= 5)
+                        .Insert(connection.EmployeeTerritories, t => new EmployeeTerritory { EmployeeId = newEmployee.EmployeeId, TerritoryId = t.TerritoryId });
+                    connection.CommitTransaction();
+                    return newEmployee.EmployeeId;
+                }
+                catch
+                {
+                    connection.RollbackTransaction();
+                    return 0;
+                }
+            }
+        }
+
+        public int MoveProductsToAnotherCategory(int categoryIDFirst, int categoryIDSecond)
+        {
+            if (categoryIDFirst == categoryIDSecond) throw new Exception("categories are same!");
+            using (var connection = new NorthwindConnection("Northwind"))
+            {
+                int updatedCount = connection.Products.Update(p => p.CategoryId == categoryIDFirst, pr => new Product
+                {
+                    CategoryId = categoryIDSecond
+                });
+                return updatedCount;
+            }
+        }
+
+        public void InsertListProducts(List<Product> products)
+        {
+            using (var connection = new NorthwindConnection("Northwind"))
+            {
+
+                try
+                {
+                    connection.BeginTransaction();
+                    foreach (var product in products)
+                    {
+                        var category = connection.Categories.FirstOrDefault(c => c.CategoryName == product.Category.CategoryName);
+                        product.CategoryId = category?.CategoryId ?? Convert.ToInt32(connection.InsertWithIdentity(
+                                                 new Category
+                                                 {
+                                                     CategoryName = product.Category.CategoryName
+                                                 }));
+                        var supplier = connection.Suppliers.FirstOrDefault(s => s.CompanyName == product.Supplier.CompanyName);
+                        product.SupplierId = supplier?.SupplierId ?? Convert.ToInt32(connection.InsertWithIdentity(
+                                                 new Supplier
+                                                 {
+                                                     CompanyName = product.Supplier.CompanyName
+                                                 }));
+                    }
+
+                    connection.BulkCopy(products);
+                    connection.CommitTransaction();
+                    }
+                catch
+                {
+                    connection.RollbackTransaction();
+
+                }
+            }
+        }
+
+
+        public int UpdateNonShippedOrders()
+        {
+            using (var connection = new NorthwindConnection("Northwind"))
+            {
+                int updatedRowsCount = 
+                    connection.OrderDetails.LoadWith(od => od.Order).LoadWith(od => od.Product)
+                    .Where(od => od.Order.ShippedDate == null)
+                    .Count();
+                var updatedRows = connection.OrderDetails.LoadWith(od => od.Order).LoadWith(od => od.Product)
+                .Where(od => od.Order.ShippedDate == null).Update(
+                    od => new OrderDetail
+                    {
+                        ProductId = connection.Products.First(p => p.CategoryId == od.Product.CategoryId && p.ProductId > od.ProductId) != null
+                            ? connection.Products.First(p => p.CategoryId == od.Product.CategoryId && p.ProductId > od.ProductId).ProductId
+                            : connection.Products.First(p => p.CategoryId == od.Product.CategoryId).ProductId
+                    });
+                return updatedRowsCount;
             }
         }
     }
